@@ -9,4 +9,6 @@ class PWParser(object):
     @abstractmethod
     def get_all(self):
         pass
-
+    @abstractmethod
+    def get_count(self):
+        pass

@@ -19,12 +19,12 @@ def run():
                            help='Path to your keepass db')
     cli.add_argument('-k', '--keyfile', required=False,
                            help='Keyfile for the db (will prompt for password if not provided)')
-    cli.add_argument('-o', '--output', default='console_full', choices=['console_full'],
+    cli.add_argument('-o', '--output', default='console', choices=['console'],
                            help='How to view the results - defaults to echoing the names of all hits to the console')
     args = cli.parse_args()
-    checker = KeepassChecker(**args)
+    checker = KeepassChecker(**vars(args))
     if checker.needs_password():
-        checker.set_password(getpass.getpass(prompt='Keepass password'))
+        checker.set_password(getpass.getpass(prompt='Keepass password: '))
     checker.run()
 
 class KeepassChecker(object):
@@ -44,15 +44,21 @@ class KeepassChecker(object):
         self.keepass_parser.set_password(password)
 
     def run(self):
-        for path in self.keepass_parser.get_all():
-            print("Found {}".format(path))
-        return
-        for testpw in self.password_parser.get_all():
-            testpw = pw.lower()
-            for path, pw in self.keepass_parser.get_all():
-                self.output.report(path, pw, testpw, testpw == pw.lower())
+        self.output.set_scope(entry_count=self.keepass_parser.get_count(),
+                password_count=self.password_parser.get_count())
+        for path, pw in self.keepass_parser.get_all():
+            self.output.next_entry(path, pw)
+            lcpw = pw.lower();
+            ctr = 0
+            for testpw in self.password_parser.get_all():
+                result = testpw.lower() == lcpw 
+                self.output.report(path, pw, testpw, result, ctr)
+                if result:
+                    # No need to keep going, let's check the next password!
+                    break
+                ctr = ctr + 1
 
 
 
-if __name__ == 'main':
+if __name__ == '__main__':
     run()
