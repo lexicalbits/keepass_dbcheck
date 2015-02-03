@@ -1,24 +1,39 @@
 # -*- coding: utf-8 -*-
-from clint.textui import progress, colored, puts
+import sys
+import time
+from clint.textui import progress, colored, puts, puts_err
 from .base import Reporter
+
+LINE_CLEAR = ' ' * 80
 
 class ConsoleReporter(Reporter):
 
+    rate = .01
+
     def reset(self):
-        if hasattr(self, 'bar'):
+        if hasattr(self, 'bar') and self.bar is not None:
             self.bar.done()
         self.bar = progress.Bar(expected_size=self.password_count)
+        self.tick = time.time()
+
+    def needs_refresh(self):
+        tick = time.time()
+        d = tick - self.tick
+        if d > self.rate:
+            self.tick = tick
+            return True
+        return False
 
     def next_entry(self, entry_path, entry_password):
-        #print("Testing {0}".format(entry_path))
-        puts(colored.blue("Testing{}".format(entry_path)))
+        puts(colored.blue("Testing {}".format(entry_path)))
         self.reset()
 
-    def report(self, entry_path, entry_password, test_password, is_match, pw_counter=None):
-        if pw_counter is not None:
+    def on_test(self, entry_path, entry_password, test_password, pw_counter):
+        if pw_counter is not None and self.needs_refresh():
             self.bar.show(pw_counter)
-
+            
+    def result(self, entry_path, entry_password, is_match):
         if is_match:
-            #print("\n{0} has a matching password".format(entry_path))
-            puts(colored.red("{} has a matching password!".format(entry_path)))
-            self.reset()
+            puts_err("\r{}".format(LINE_CLEAR), newline=False)
+            puts(colored.red("\r{} has a matching password!".format(entry_path)), newline=False)
+        puts("")

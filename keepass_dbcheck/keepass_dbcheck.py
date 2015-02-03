@@ -50,13 +50,14 @@ class KeepassChecker(object):
             self.output.next_entry(path, pw)
             lcpw = pw.lower();
             ctr = 0
+            match = False
             for testpw in self.password_parser.get_all():
-                result = testpw.lower() == lcpw 
-                self.output.report(path, pw, testpw, result, ctr)
-                if result:
-                    # No need to keep going, let's check the next password!
+                self.output.on_test(path, pw, testpw, ctr)
+                match = testpw.lower() == lcpw 
+                if match:
                     break
                 ctr = ctr + 1
+            self.output.result(path, pw, match)
 
 
 

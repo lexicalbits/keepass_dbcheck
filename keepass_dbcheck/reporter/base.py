@@ -16,5 +16,8 @@ class Reporter(object):
     def next_entry(self, entry_path, entry_password):
         pass
     @abstractmethod
-    def report(self, entry_path, entry_password, test_password, is_match):
+    def on_test(self, entry_path, entry_password, test_password, pw_counter):
+        pass
+    @abstractmethod
+    def result(self, entry_path, entry_password, is_match):
         pass
