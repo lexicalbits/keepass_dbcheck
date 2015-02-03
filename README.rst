@@ -55,6 +55,7 @@ pwparser/__init__.py and passing the scoped variable into the python command::
 
 
 **Alternate output**
+
 The default output of the application is designed to be viewed during an interactive console session.
 If you want to change how the output works - say, to make something more script-friendly - you can easily
 add your own reporter (see *customization* below)
