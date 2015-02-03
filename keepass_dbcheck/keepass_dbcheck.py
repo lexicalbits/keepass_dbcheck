@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
+import os
 import argparse
 import getpass
 import dbparser, pwparser, reporter
+
+def fixpath(path):
+    return os.path.abspath(os.path.expanduser(path)) if isinstance(path, basestring) else None
 
 def run():
     """
@@ -40,9 +44,9 @@ class KeepassChecker(object):
         :param output: Where the output should go (currently only console)
         """
         kp = getattr(dbparser, keepass_parser)
-        self.keepass_parser = kp(keepass_file, keyfile=keyfile)
+        self.keepass_parser = kp(fixpath(keepass_file), keyfile=fixpath(keyfile))
         pp = getattr(pwparser, password_parser)
-        self.password_parser = pp(password_file)
+        self.password_parser = pp(fixpath(password_file))
         o = getattr(reporter, output)
         self.output = o()
 
@@ -66,6 +70,7 @@ class KeepassChecker(object):
         """
         self.output.set_scope(entry_count=self.keepass_parser.get_count(),
                 password_count=self.password_parser.get_count())
+        bad = []
         for path, pw in self.keepass_parser.get_all():
             self.output.next_entry(path, pw)
             lcpw = pw.lower();
@@ -75,9 +80,11 @@ class KeepassChecker(object):
                 self.output.on_test(path, pw, testpw, ctr)
                 match = testpw.lower() == lcpw 
                 if match:
+                    bad.append([path, pw])
                     break
                 ctr = ctr + 1
             self.output.result(path, pw, match)
+        self.output.summary(bad)
 
 
 

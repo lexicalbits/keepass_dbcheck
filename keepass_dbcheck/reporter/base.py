@@ -21,3 +21,6 @@ class Reporter(object):
     @abstractmethod
     def result(self, entry_path, entry_password, is_match):
         pass
+    @abstractmethod
+    def summary(self, matches):
+        pass
