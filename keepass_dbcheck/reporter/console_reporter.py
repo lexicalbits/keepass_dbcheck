@@ -33,9 +33,11 @@ class ConsoleReporter(Reporter):
             self.bar.show(pw_counter)
             
     def result(self, entry_path, entry_password, is_match):
+        puts_err("\r{}".format(LINE_CLEAR), newline=False)
         if is_match:
-            puts_err("\r{}".format(LINE_CLEAR), newline=False)
             puts(colored.red("\r{} has a guessable password!".format(entry_path)), newline=False)
+        else:
+            puts(colored.green("\r{} looks OK".format(entry_path)), newline=False)
         puts("")
 
     def summary(self, results):
