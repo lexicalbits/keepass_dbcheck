@@ -51,4 +51,6 @@ class KPPYParser(DBParser):
         :return: Integer count
         """
         self.load()
-        return len(self.reader.entries)
+        #I originally did this, but it includes Meta-Info, which we don't use, so reports numbers imporperly
+        #return len(self.reader.entries)
+        return sum(1 for x in self.get_all())
