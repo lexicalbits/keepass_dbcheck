@@ -30,6 +30,15 @@ def run():
 class KeepassChecker(object):
     def __init__(self, keepass_file, password_file, keyfile=None, keepass_parser='kppy', password_parser='plaintext',
                  output='console'):
+        """
+        Create a checker that matches a password file against a keepass database and outputs the results
+        :param keepass_file: The path to the keepass file (required)
+        :param password_file: The path to the password list (requried)
+        :param keyfile: The optional keyfile for use in the
+        :param keepass_parser: Which keepass library to use to interact with the database (currently only kppy)
+        :param password_parser: What format the password file is in (currently only plaintext)
+        :param output: Where the output should go (currently only console)
+        """
         kp = getattr(dbparser, keepass_parser)
         self.keepass_parser = kp(keepass_file, keyfile=keyfile)
         pp = getattr(pwparser, password_parser)
@@ -38,12 +47,23 @@ class KeepassChecker(object):
         self.output = o()
 
     def needs_password(self):
+        """
+        Check to see if the database might need a password.  Always true if you didn't provide a keyfile.
+        :return: True if you should add a password to this checker
+        """
         return self.keepass_parser.needs_password()
 
     def set_password(self, password):
+        """
+        Assign an optional password to the keypass parser.  This is only necessary if the file doesn't use a keyfile.
+        :param password: Password for the keepass database
+        """
         self.keepass_parser.set_password(password)
 
     def run(self):
+        """
+        Initialize the matching process.
+        """
         self.output.set_scope(entry_count=self.keepass_parser.get_count(),
                 password_count=self.password_parser.get_count())
         for path, pw in self.keepass_parser.get_all():
